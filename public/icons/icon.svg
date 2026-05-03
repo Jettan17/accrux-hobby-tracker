@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0a0a0a"/>
+  <g transform="translate(256,256)">
+    <!-- Main star -->
+    <polygon points="0,-120 28,-38 110,-38 44,14 68,96 0,44 -68,96 -44,14 -110,-38 -28,-38" fill="#ffffff"/>
+    <!-- Small stars -->
+    <circle cx="-130" cy="-90" r="6" fill="#f97316" opacity="0.8"/>
+    <circle cx="140" cy="-70" r="4" fill="#a855f7" opacity="0.7"/>
+    <circle cx="-100" cy="110" r="5" fill="#22c55e" opacity="0.8"/>
+    <circle cx="120" cy="100" r="3" fill="#f59e0b" opacity="0.7"/>
+    <!-- Orbital ring -->
+    <ellipse cx="0" cy="0" rx="170" ry="50" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.2" transform="rotate(-20)"/>
+  </g>
+</svg>
