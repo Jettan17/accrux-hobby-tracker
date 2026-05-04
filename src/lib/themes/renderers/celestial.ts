@@ -14,10 +14,6 @@ export const celestialRenderer: ThemeRenderer = {
   getNodeClasses(props: NodeRenderProps): string {
     const base = 'rounded-full border-2 flex items-center justify-center transition-all duration-300';
 
-    if (props.completed) {
-      return `${base} border-emerald-400 bg-emerald-900/50 shadow-[0_0_20px_rgba(52,211,153,0.4)]`;
-    }
-
     if (props.locked) {
       return `${base} border-zinc-600 bg-zinc-800/50 opacity-50`;
     }
@@ -33,7 +29,7 @@ export const celestialRenderer: ThemeRenderer = {
     const { palette, edgeStyle } = props;
 
     const bothCompleted = props.sourceCompleted && props.targetCompleted;
-    const color = bothCompleted ? '#34d399' : palette.secondary;
+    const color = bothCompleted ? palette.accent : palette.secondary;
 
     switch (edgeStyle) {
       case 'constellation':

@@ -15,7 +15,7 @@ export type SkillTreeEdgeData = {
 export type SkillTreeEdgeType = Edge<SkillTreeEdgeData, 'skill-tree'>;
 
 function getEdgeStroke(edgeStyle: EdgeStyleVariant, palette: ColorPalette, bothCompleted: boolean) {
-  const color = bothCompleted ? '#34d399' : palette.secondary;
+  const color = bothCompleted ? palette.accent : palette.secondary;
 
   switch (edgeStyle) {
     case 'constellation':

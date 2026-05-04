@@ -38,19 +38,19 @@ function PlanetNodeComponent({ id, data, selected }: NodeProps<PlanetNodeType>) 
   const isCompleted = status === 'completed';
 
   const borderColor = isCompleted
-    ? '#34d399'
+    ? palette.accent
     : isLocked
       ? '#52525b'
       : palette.primary;
 
   const gradientBg = isCompleted
-    ? `radial-gradient(circle at 35% 30%, rgba(52,211,153,0.4) 0%, rgba(52,211,153,0.1) 50%, rgba(16,40,30,0.8) 100%)`
+    ? `radial-gradient(circle at 35% 30%, ${palette.accent}80 0%, ${palette.accent}26 50%, ${palette.accent}10 100%)`
     : isLocked
       ? `radial-gradient(circle at 35% 30%, rgba(82,82,91,0.3) 0%, rgba(40,40,45,0.6) 50%, rgba(20,20,22,0.9) 100%)`
       : `radial-gradient(circle at 35% 30%, ${palette.primary}60 0%, ${palette.primary}20 50%, ${palette.accent}10 100%)`;
 
   const outerGlow = isCompleted
-    ? `0 0 24px rgba(52,211,153,0.5), 0 0 48px rgba(52,211,153,0.15), inset 0 0 20px rgba(52,211,153,0.1)`
+    ? `0 0 28px ${palette.accent}99, 0 0 56px ${palette.accent}40, inset 0 0 20px ${palette.accent}26`
     : isLocked
       ? `0 0 8px rgba(0,0,0,0.5)`
       : `0 0 20px ${palette.primary}40, 0 0 40px ${palette.primary}15, inset 0 0 15px ${palette.primary}10`;
@@ -125,7 +125,7 @@ function PlanetNodeComponent({ id, data, selected }: NodeProps<PlanetNodeType>) 
             style={{
               width: size * 1.4,
               height: size * 0.35,
-              border: `1.5px solid ${isCompleted ? 'rgba(52,211,153,0.3)' : `${palette.primary}30`}`,
+              border: `1.5px solid ${isCompleted ? `${palette.accent}4D` : `${palette.primary}30`}`,
               borderRadius: '50%',
               transform: 'rotate(-20deg)',
             }}
@@ -155,12 +155,33 @@ function PlanetNodeComponent({ id, data, selected }: NodeProps<PlanetNodeType>) 
           >
             {label}
           </span>
-          {isCompleted && (
-            <svg className="h-3.5 w-3.5 mt-0.5 drop-shadow-[0_0_4px_rgba(52,211,153,0.6)]" fill="none" viewBox="0 0 24 24" stroke="#34d399" strokeWidth={3}>
+        </div>
+
+        {isCompleted && (
+          <div
+            className="absolute flex items-center justify-center rounded-full"
+            style={{
+              top: -4,
+              right: -4,
+              width: Math.max(20, size * 0.28),
+              height: Math.max(20, size * 0.28),
+              backgroundColor: palette.accent,
+              border: `2px solid ${palette.background}`,
+              boxShadow: `0 0 10px ${palette.accent}80`,
+              zIndex: 20,
+            }}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth={4}
+              style={{ width: '60%', height: '60%' }}
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <Handle
