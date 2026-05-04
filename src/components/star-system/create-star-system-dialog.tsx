@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ThemeEditor } from '@/components/theme-editor/theme-editor';
 import { useAppStore } from '@/lib/store';
-import { PRESET_THEMES, DEFAULT_PRESET } from '@/lib/themes/presets';
+import { DEFAULT_THEME } from '@/lib/themes/presets';
 import type { ThemeConfig } from '@/types';
 
 interface CreateStarSystemDialogProps {
@@ -18,7 +18,7 @@ interface CreateStarSystemDialogProps {
 export function CreateStarSystemDialog({ open, onClose, userId }: CreateStarSystemDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [themeConfig, setThemeConfig] = useState<ThemeConfig>(PRESET_THEMES[DEFAULT_PRESET]);
+  const [themeConfig, setThemeConfig] = useState<ThemeConfig>(DEFAULT_THEME);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +40,7 @@ export function CreateStarSystemDialog({ open, onClose, userId }: CreateStarSyst
       });
       setName('');
       setDescription('');
-      setThemeConfig(PRESET_THEMES[DEFAULT_PRESET]);
+      setThemeConfig(DEFAULT_THEME);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create star system');

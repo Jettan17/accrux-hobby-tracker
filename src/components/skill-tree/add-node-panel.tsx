@@ -10,7 +10,7 @@ interface AddNodePanelProps {
 
 const VARIANTS: Array<{ value: NodeVariant; label: string; description: string }> = [
   { value: 'gas-giant', label: 'Milestone', description: 'Major achievement' },
-  { value: 'moon', label: 'Sub-skill', description: 'Supporting skill' },
+  { value: 'moon', label: 'Skill', description: 'Supporting skill' },
   { value: 'asteroid', label: 'Task', description: 'Small step' },
 ];
 

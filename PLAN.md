@@ -7,7 +7,7 @@ Accrux is a hobby gamification PWA with a celestial/space theme. Each hobby is a
 **Key concepts:**
 - Each hobby = a "star system" with its own visual theme
 - Skills = "planets" arranged in a directed graph (prerequisites = edges)
-- Three node variants: gas giant (milestone), asteroid (small task), moon (sub-skill)
+- Three node variants: gas giant (milestone), asteroid (small task), moon (skill)
 - Per-hobby visual themes — celestial base with customizable colors, shapes, edges, overlays
 - Theme system architected so fully distinct theme families (nature, circuits, climbing holds) can be added later
 - No XP, no levels, no streaks — progress is binary completion counts/percentages

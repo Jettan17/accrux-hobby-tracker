@@ -1,7 +1,6 @@
 import type { Achievement } from '@/types';
 
 export const ACHIEVEMENTS: readonly Achievement[] = [
-  // Star system creation milestones
   {
     id: 'first-light',
     name: 'First Light',
@@ -10,115 +9,112 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
     condition: { kind: 'star-systems-created', threshold: 1 },
   },
   {
-    id: 'binary-star',
-    name: 'Binary Star',
-    description: 'Create 2 star systems',
-    iconName: 'orbit',
-    condition: { kind: 'star-systems-created', threshold: 2 },
-  },
-  {
     id: 'constellation-builder',
     name: 'Constellation Builder',
     description: 'Create 5 star systems',
     iconName: 'stars',
     condition: { kind: 'star-systems-created', threshold: 5 },
   },
-  {
-    id: 'galaxy-architect',
-    name: 'Galaxy Architect',
-    description: 'Create 7 star systems',
-    iconName: 'telescope',
-    condition: { kind: 'star-systems-created', threshold: 7 },
-  },
 
-  // Node completion milestones
   {
     id: 'ignition',
     name: 'Ignition',
-    description: 'Complete your first skill node',
+    description: 'Complete your first task',
     iconName: 'flame',
-    condition: { kind: 'total-nodes-completed', threshold: 1 },
+    condition: { kind: 'total-todos-completed', threshold: 1 },
   },
   {
     id: 'orbital-velocity',
     name: 'Orbital Velocity',
-    description: 'Complete 5 skill nodes',
+    description: 'Complete 10 tasks',
     iconName: 'rocket',
-    condition: { kind: 'total-nodes-completed', threshold: 5 },
+    condition: { kind: 'total-todos-completed', threshold: 10 },
   },
   {
     id: 'escape-velocity',
     name: 'Escape Velocity',
-    description: 'Complete 10 skill nodes',
+    description: 'Complete 50 tasks',
     iconName: 'zap',
-    condition: { kind: 'total-nodes-completed', threshold: 10 },
-  },
-  {
-    id: 'lightspeed',
-    name: 'Lightspeed',
-    description: 'Complete 25 skill nodes',
-    iconName: 'bolt',
-    condition: { kind: 'total-nodes-completed', threshold: 25 },
-  },
-  {
-    id: 'warp-drive',
-    name: 'Warp Drive',
-    description: 'Complete 50 skill nodes',
-    iconName: 'gauge',
-    condition: { kind: 'total-nodes-completed', threshold: 50 },
+    condition: { kind: 'total-todos-completed', threshold: 50 },
   },
   {
     id: 'hyperdrive',
     name: 'Hyperdrive',
-    description: 'Complete 100 skill nodes',
+    description: 'Complete 100 tasks',
     iconName: 'atom',
-    condition: { kind: 'total-nodes-completed', threshold: 100 },
-  },
-
-  // Todo completion milestones
-  {
-    id: 'mission-log',
-    name: 'Mission Log',
-    description: 'Complete your first todo',
-    iconName: 'clipboard-check',
-    condition: { kind: 'total-todos-completed', threshold: 1 },
-  },
-  {
-    id: 'mission-control',
-    name: 'Mission Control',
-    description: 'Complete 10 todos',
-    iconName: 'list-checks',
-    condition: { kind: 'total-todos-completed', threshold: 10 },
-  },
-  {
-    id: 'ground-control',
-    name: 'Ground Control',
-    description: 'Complete 25 todos',
-    iconName: 'radio-tower',
-    condition: { kind: 'total-todos-completed', threshold: 25 },
-  },
-  {
-    id: 'command-center',
-    name: 'Command Center',
-    description: 'Complete 50 todos',
-    iconName: 'monitor',
-    condition: { kind: 'total-todos-completed', threshold: 50 },
-  },
-  {
-    id: 'starfleet-ops',
-    name: 'Starfleet Ops',
-    description: 'Complete 100 todos',
-    iconName: 'shield-check',
     condition: { kind: 'total-todos-completed', threshold: 100 },
   },
 
-  // Full star system completion
   {
     id: 'supernova',
     name: 'Supernova',
-    description: 'Complete all nodes in a star system',
+    description: 'Complete every task in a star system',
     iconName: 'sun',
-    condition: { kind: 'star-system-all-nodes-completed' },
+    condition: { kind: 'star-systems-fully-completed', threshold: 1 },
+  },
+  {
+    id: 'galaxy-architect',
+    name: 'Galaxy Architect',
+    description: 'Fully complete 3 star systems',
+    iconName: 'telescope',
+    condition: { kind: 'star-systems-fully-completed', threshold: 3 },
+  },
+
+  {
+    id: 'cartographer',
+    name: 'Cartographer',
+    description: 'Export your first backup',
+    iconName: 'map',
+    condition: { kind: 'has-exported' },
+  },
+  {
+    id: 'personal-touch',
+    name: 'Personal Touch',
+    description: 'Upload a custom background image',
+    iconName: 'image',
+    condition: { kind: 'has-custom-image' },
+  },
+  {
+    id: 'branching-out',
+    name: 'Branching Out',
+    description: 'Nest a task three levels deep',
+    iconName: 'git-branch',
+    condition: { kind: 'todo-nesting-depth', threshold: 3 },
+  },
+  {
+    id: 'constellation',
+    name: 'Constellation',
+    description: 'Have ten tasks in a single star system',
+    iconName: 'network',
+    condition: { kind: 'todos-in-single-system', threshold: 10 },
+  },
+  {
+    id: 'polymath',
+    name: 'Polymath',
+    description: 'Have three star systems each with 10+ completed tasks',
+    iconName: 'graduation-cap',
+    condition: { kind: 'systems-with-completed-todos', minSystems: 3, completedThreshold: 10 },
+  },
+  {
+    id: 'renaissance',
+    name: 'Renaissance',
+    description: 'Use five different theme colors across your systems',
+    iconName: 'palette',
+    condition: { kind: 'distinct-theme-colors', threshold: 5 },
+  },
+  {
+    id: 'power-hour',
+    name: 'Power Hour',
+    description: 'Complete five tasks within an hour',
+    iconName: 'timer',
+    condition: { kind: 'todos-in-window', threshold: 5, windowMs: 60 * 60 * 1000 },
+  },
+  {
+    id: 'marathon',
+    name: 'Marathon',
+    description: 'Complete ten tasks in a single day',
+    iconName: 'medal',
+    condition: { kind: 'todos-in-window', threshold: 10, windowMs: 24 * 60 * 60 * 1000 },
   },
 ];
 

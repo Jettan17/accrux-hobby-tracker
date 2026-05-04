@@ -5,7 +5,6 @@ export interface NodeRenderProps {
   readonly completed: boolean;
   readonly locked: boolean;
   readonly palette: ColorPalette;
-  readonly nodeShape: ThemeConfig['nodeShape'];
   readonly overlay: ThemeConfig['defaultNodeOverlay'];
 }
 

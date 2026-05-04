@@ -12,7 +12,7 @@ interface NodeDetailPanelProps {
 
 const VARIANTS: Array<{ value: NodeVariant; label: string }> = [
   { value: 'gas-giant', label: 'Milestone (Gas Giant)' },
-  { value: 'moon', label: 'Sub-skill (Moon)' },
+  { value: 'moon', label: 'Skill (Moon)' },
   { value: 'asteroid', label: 'Task (Asteroid)' },
 ];
 

@@ -14,7 +14,7 @@ interface MobileNodeSheetProps {
 
 const VARIANT_LABELS: Record<string, string> = {
   'gas-giant': 'Milestone',
-  moon: 'Sub-skill',
+  moon: 'Skill',
   asteroid: 'Task',
 };
 

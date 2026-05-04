@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Star, LogOut, Settings, Download } from 'lucide-react';
+import { Star, LogOut, Settings, Upload, Download } from 'lucide-react';
 import { signOut } from '@/lib/supabase/auth-actions';
 import { Button } from '@/components/ui/button';
 import { useAppStore } from '@/lib/store';
+import { createClient } from '@/lib/supabase/client';
+import { markHasExported } from '@/lib/utils/export-star-system';
 import type { StarSystem, SkillNode, SkillEdge, TodoItem } from '@/types';
 
 interface ExportData {
@@ -22,7 +24,9 @@ interface HeaderProps {
 
 export function Header({ userEmail }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const starSystems = useAppStore((s) => s.starSystems);
   const skillNodes = useAppStore((s) => s.skillNodes);
@@ -57,7 +61,156 @@ export function Header({ userEmail }: HeaderProps) {
     a.download = `accrux-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    markHasExported();
     setMenuOpen(false);
+  }
+
+  function handleImportClick() {
+    fileInputRef.current?.click();
+    setMenuOpen(false);
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImporting(true);
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text) as ExportData;
+
+      if (data.version !== 1) {
+        alert('Unsupported backup version');
+        return;
+      }
+
+      const counts = {
+        systems: data.starSystems?.length ?? 0,
+        nodes: data.skillNodes?.length ?? 0,
+        edges: data.skillEdges?.length ?? 0,
+        todos: data.todoItems?.length ?? 0,
+      };
+
+      const confirmed = confirm(
+        `Import backup?\n\n${counts.systems} star systems\n${counts.nodes} skill nodes\n${counts.edges} edges\n${counts.todos} todos\n\nExisting items with matching IDs will be updated.`,
+      );
+      if (!confirmed) return;
+
+      const supabase = createClient();
+      const { data: authData } = await supabase.auth.getUser();
+      if (!authData.user) {
+        alert('Not authenticated');
+        return;
+      }
+      const userId = authData.user.id;
+
+      if (data.starSystems?.length) {
+        const { error } = await supabase.from('star_systems').upsert(
+          data.starSystems.map((s) => ({
+            id: s.id,
+            user_id: userId,
+            name: s.name,
+            description: s.description,
+            icon_storage_key: s.iconStorageKey,
+            theme_config: s.themeConfig,
+            sort_order: s.sortOrder,
+          })),
+        );
+        if (error) throw error;
+      }
+
+      if (data.skillNodes?.length) {
+        const { error } = await supabase.from('skill_nodes').upsert(
+          data.skillNodes.map((n) => ({
+            id: n.id,
+            star_system_id: n.starSystemId,
+            label: n.label,
+            description: n.description,
+            variant: n.variant,
+            completed: n.completed,
+            position_x: n.positionX,
+            position_y: n.positionY,
+          })),
+        );
+        if (error) throw error;
+      }
+
+      if (data.skillEdges?.length) {
+        const { error } = await supabase.from('skill_edges').upsert(
+          data.skillEdges.map((edge) => ({
+            id: edge.id,
+            star_system_id: edge.starSystemId,
+            source_node_id: edge.sourceNodeId,
+            target_node_id: edge.targetNodeId,
+          })),
+        );
+        if (error) throw error;
+      }
+
+      if (data.todoItems?.length) {
+        const insertedIds = new Set<string>();
+        let remaining = [...data.todoItems];
+
+        while (remaining.length > 0) {
+          const batch = remaining.filter(
+            (t) => t.parentId === null || insertedIds.has(t.parentId),
+          );
+          if (batch.length === 0) break;
+
+          const { error } = await supabase.from('todo_items').upsert(
+            batch.map((t) => ({
+              id: t.id,
+              star_system_id: t.starSystemId,
+              parent_id: t.parentId,
+              title: t.title,
+              completed: t.completed,
+              sort_order: t.sortOrder,
+            })),
+          );
+          if (error) throw error;
+
+          const batchIds = new Set(batch.map((t) => t.id));
+          for (const t of batch) insertedIds.add(t.id);
+          remaining = remaining.filter((t) => !batchIds.has(t.id));
+        }
+      }
+
+      const storeState = useAppStore.getState();
+
+      const systemsMap: Record<string, StarSystem> = { ...storeState.starSystems };
+      for (const s of data.starSystems ?? []) {
+        systemsMap[s.id] = { ...s, userId };
+      }
+
+      const nodesMap: Record<string, SkillNode> = { ...storeState.skillNodes };
+      for (const n of data.skillNodes ?? []) {
+        nodesMap[n.id] = n;
+      }
+
+      const edgesMap: Record<string, SkillEdge> = { ...storeState.skillEdges };
+      for (const edge of data.skillEdges ?? []) {
+        edgesMap[edge.id] = edge;
+      }
+
+      const todosMap: Record<string, TodoItem> = { ...storeState.todoItems };
+      for (const t of data.todoItems ?? []) {
+        todosMap[t.id] = t;
+      }
+
+      useAppStore.setState({
+        starSystems: systemsMap,
+        skillNodes: nodesMap,
+        skillEdges: edgesMap,
+        todoItems: todosMap,
+      });
+
+      alert('Backup imported successfully!');
+    } catch (err) {
+      alert(`Import failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   }
 
   return (
@@ -86,30 +239,35 @@ export function Header({ userEmail }: HeaderProps) {
                 onClick={handleExport}
                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-t-lg transition-colors cursor-pointer"
               >
-                <Download className="h-4 w-4" />
+                <Upload className="h-4 w-4" />
                 Export Backup
               </button>
-              <form action={signOut}>
-                <button
-                  type="submit"
-                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-b-lg transition-colors cursor-pointer"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign out
-                </button>
-              </form>
+              <button
+                onClick={handleImportClick}
+                disabled={importing}
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-b-lg transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <Download className="h-4 w-4" />
+                {importing ? 'Importing...' : 'Import Backup'}
+              </button>
             </div>
           )}
         </div>
 
-        {!menuOpen && (
-          <form action={signOut} className="hidden sm:block">
-            <Button variant="ghost" size="sm" type="submit">
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign out</span>
-            </Button>
-          </form>
-        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+
+        <form action={signOut}>
+          <Button variant="ghost" size="sm" type="submit">
+            <LogOut className="h-4 w-4" />
+            <span className="hidden sm:inline">Sign out</span>
+          </Button>
+        </form>
       </div>
     </header>
   );

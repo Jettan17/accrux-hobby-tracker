@@ -1,9 +1,7 @@
 export type BackgroundStyle =
   | { readonly kind: 'solid'; readonly color: string }
   | { readonly kind: 'gradient'; readonly colors: readonly string[]; readonly angle: number }
-  | { readonly kind: 'image'; readonly storageKey: string; readonly opacity: number };
-
-export type NodeShapeVariant = 'circle' | 'hexagon' | 'irregular';
+  | { readonly kind: 'image'; readonly url: string; readonly opacity: number };
 
 export type NodeOverlay =
   | { readonly kind: 'none' }
@@ -24,7 +22,6 @@ export interface ColorPalette {
 
 export interface ThemeConfig {
   readonly background: BackgroundStyle;
-  readonly nodeShape: NodeShapeVariant;
   readonly defaultNodeOverlay: NodeOverlay;
   readonly edgeStyle: EdgeStyleVariant;
   readonly palette: ColorPalette;

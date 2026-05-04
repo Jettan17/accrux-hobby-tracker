@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, Pencil, Trash2, Upload } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { useAppStore, selectCompletionStats } from '@/lib/store';
 import { EditStarSystemDialog } from './edit-star-system-dialog';
 import { DeleteStarSystemDialog } from './delete-star-system-dialog';
 import { SkillTreeTab } from './skill-tree-tab';
 import { TodosTab } from './todos-tab';
+import { exportStarSystem } from '@/lib/utils/export-star-system';
 
 interface StarSystemDetailProps {
   starSystemId: string;
@@ -26,6 +27,17 @@ export function StarSystemDetail({ starSystemId }: StarSystemDetailProps) {
   const starSystemsLoaded = useAppStore((s) => s.starSystemsLoaded);
   const stats = useAppStore(useShallow((s) => selectCompletionStats(s, starSystemId)));
   const loadTodoItems = useAppStore((s) => s.loadTodoItems);
+
+  const handleExport = () => {
+    if (!system) return;
+    const state = useAppStore.getState();
+    exportStarSystem({
+      system,
+      skillNodes: state.skillNodes,
+      skillEdges: state.skillEdges,
+      todoItems: state.todoItems,
+    });
+  };
 
   useEffect(() => {
     if (!starSystemId) return;
@@ -86,13 +98,22 @@ export function StarSystemDetail({ starSystemId }: StarSystemDetailProps) {
           <h1 className="text-xl font-bold text-white flex-1">{system.name}</h1>
 
           <button
+            onClick={handleExport}
+            title="Export star system"
+            className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors cursor-pointer"
+          >
+            <Upload className="h-4 w-4" />
+          </button>
+          <button
             onClick={() => setEditOpen(true)}
+            title="Edit"
             className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors cursor-pointer"
           >
             <Pencil className="h-4 w-4" />
           </button>
           <button
             onClick={() => setDeleteOpen(true)}
+            title="Delete"
             className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-red-400 transition-colors cursor-pointer"
           >
             <Trash2 className="h-4 w-4" />

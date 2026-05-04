@@ -88,20 +88,29 @@ function SkillTreeCanvasInner({ starSystemId, themeConfig }: SkillTreeCanvasProp
     [derivedEdges, derivedNodes, themeConfig],
   );
 
-  const bgStyle = useMemo(() => {
+  const wrapperStyle = useMemo((): React.CSSProperties => {
     const { background } = themeConfig;
     switch (background.kind) {
       case 'solid':
-        return background.color;
+        return { backgroundColor: background.color };
       case 'gradient':
-        return background.colors[0] ?? '#0f0f0f';
-      default:
-        return '#0f0f0f';
+        return {
+          background: `linear-gradient(${background.angle}deg, ${background.colors.join(', ')})`,
+        };
+      case 'image': {
+        const tint = Math.max(0, 1 - background.opacity);
+        return {
+          backgroundColor: '#0f0f0f',
+          backgroundImage: `linear-gradient(rgba(0,0,0,${tint}), rgba(0,0,0,${tint})), url(${background.url})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        };
+      }
     }
   }, [themeConfig]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full" style={wrapperStyle}>
       <ReactFlow
         nodes={flowNodes}
         edges={flowEdges}
@@ -116,13 +125,14 @@ function SkillTreeCanvasInner({ starSystemId, themeConfig }: SkillTreeCanvasProp
         nodesConnectable={false}
         elementsSelectable={false}
         proOptions={{ hideAttribution: true }}
+        style={{ background: 'transparent' }}
       >
         <Background
           variant={BackgroundVariant.Dots}
           gap={20}
           size={1}
           color={themeConfig.palette.secondary + '30'}
-          bgColor={bgStyle}
+          bgColor="transparent"
         />
       </ReactFlow>
 

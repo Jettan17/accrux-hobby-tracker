@@ -1,6 +1,5 @@
 export type {
   BackgroundStyle,
-  NodeShapeVariant,
   NodeOverlay,
   EdgeStyleVariant,
   ColorPalette,
