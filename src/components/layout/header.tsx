@@ -6,7 +6,6 @@ import { signOut } from '@/lib/supabase/auth-actions';
 import { Button } from '@/components/ui/button';
 import { useAppStore } from '@/lib/store';
 import { createClient } from '@/lib/supabase/client';
-import { markHasExported } from '@/lib/utils/export-star-system';
 import type { StarSystem, SkillNode, SkillEdge, TodoItem } from '@/types';
 
 interface ExportData {
@@ -61,7 +60,6 @@ export function Header({ userEmail }: HeaderProps) {
     a.download = `accrux-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    markHasExported();
     setMenuOpen(false);
   }
 

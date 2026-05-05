@@ -1,14 +1,5 @@
 import type { StarSystem, SkillNode, SkillEdge, TodoItem } from '@/types';
 
-export const HAS_EXPORTED_KEY = 'accrux:has-exported';
-export const EXPORTED_EVENT = 'accrux:exported';
-
-export function markHasExported(): void {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(HAS_EXPORTED_KEY, '1');
-  window.dispatchEvent(new Event(EXPORTED_EVENT));
-}
-
 interface ExportPayload {
   version: 1;
   exportedAt: string;
@@ -49,5 +40,4 @@ export function exportStarSystem({ system, skillNodes, skillEdges, todoItems }: 
   a.download = `accrux-${slugify(system.name)}-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  markHasExported();
 }

@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Pencil, Trash2, Upload } from 'lucide-react';
+import { ArrowLeft, Pencil, Trash2, Upload, Network, ListChecks } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { useAppStore, selectCompletionStats } from '@/lib/store';
+import { useIsMobile } from '@/hooks/use-is-mobile';
 import { EditStarSystemDialog } from './edit-star-system-dialog';
 import { DeleteStarSystemDialog } from './delete-star-system-dialog';
 import { SkillTreeTab } from './skill-tree-tab';
@@ -15,13 +16,15 @@ interface StarSystemDetailProps {
   starSystemId: string;
 }
 
-type Tab = 'todos' | 'skill-tree';
+type MobileView = 'tree' | 'tasks';
 
 export function StarSystemDetail({ starSystemId }: StarSystemDetailProps) {
-  const [activeTab, setActiveTab] = useState<Tab>('todos');
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [mobileView, setMobileView] = useState<MobileView>('tree');
+
+  const isMobile = useIsMobile();
 
   const system = useAppStore((s) => s.starSystems[starSystemId]);
   const starSystemsLoaded = useAppStore((s) => s.starSystemsLoaded);
@@ -49,7 +52,9 @@ export function StarSystemDetail({ starSystemId }: StarSystemDetailProps) {
     }
 
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [starSystemId, loadTodoItems]);
 
   if (!starSystemsLoaded) {
@@ -75,16 +80,11 @@ export function StarSystemDetail({ starSystemId }: StarSystemDetailProps) {
 
   const primaryColor = system.themeConfig.palette.primary;
 
-  const tabs: Array<{ key: Tab; label: string; count?: number }> = [
-    { key: 'todos', label: 'Tasks', count: stats.totalTodos },
-    { key: 'skill-tree', label: 'Skill Tree' },
-  ];
-
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="border-b border-zinc-800 px-4 py-4 lg:px-8">
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-3">
           <Link
             href="/"
             className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
@@ -95,7 +95,7 @@ export function StarSystemDetail({ starSystemId }: StarSystemDetailProps) {
             className="h-3 w-3 rounded-full flex-shrink-0"
             style={{ backgroundColor: primaryColor }}
           />
-          <h1 className="text-xl font-bold text-white flex-1">{system.name}</h1>
+          <h1 className="text-xl font-bold text-white flex-1 truncate">{system.name}</h1>
 
           <button
             onClick={handleExport}
@@ -120,47 +120,68 @@ export function StarSystemDetail({ starSystemId }: StarSystemDetailProps) {
           </button>
         </div>
 
-        {system.description && (
-          <p className="text-sm text-zinc-400 mb-3 ml-10">{system.description}</p>
-        )}
-
-        {stats.totalTodos > 0 && (
-          <div className="flex gap-6 ml-10 text-xs text-zinc-500">
-            <span>
-              Progress: {stats.completedTodos}/{stats.totalTodos} ({stats.todoPercent}%)
-            </span>
+        {(system.description || stats.totalTodos > 0 || isMobile) && (
+          <div className="mt-3 ml-10 flex flex-wrap items-center gap-x-6 gap-y-2">
+            {system.description && (
+              <p className="text-sm text-zinc-400 flex-1 min-w-[200px]">{system.description}</p>
+            )}
+            {stats.totalTodos > 0 && (
+              <span className="text-xs text-zinc-500">
+                Progress: {stats.completedTodos}/{stats.totalTodos} ({stats.todoPercent}%)
+              </span>
+            )}
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="flex gap-1 mt-4 ml-10">
-          {tabs.map((tab) => (
+        {isMobile && (
+          <div className="mt-3 ml-10 inline-flex rounded-lg border border-zinc-800 bg-zinc-900 p-0.5">
             <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`
-                px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer
-                ${activeTab === tab.key
-                  ? 'bg-zinc-800 text-white'
-                  : 'text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800/50'
-                }
-              `}
+              onClick={() => setMobileView('tree')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                mobileView === 'tree'
+                  ? 'bg-zinc-700 text-white'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
             >
-              {tab.label}
-              {tab.count !== undefined && tab.count > 0 && (
-                <span className="ml-1.5 text-xs text-zinc-500">({tab.count})</span>
-              )}
+              <Network className="h-3.5 w-3.5" />
+              Skill Tree
             </button>
-          ))}
-        </div>
+            <button
+              onClick={() => setMobileView('tasks')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                mobileView === 'tasks'
+                  ? 'bg-zinc-700 text-white'
+                  : 'text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <ListChecks className="h-3.5 w-3.5" />
+              Tasks{stats.totalTodos > 0 ? ` (${stats.totalTodos})` : ''}
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Tab content */}
-      <div className="flex-1 overflow-y-auto">
-        {activeTab === 'skill-tree' ? (
-          <SkillTreeTab starSystemId={starSystemId} loaded={dataLoaded} />
+      {/* Body — split on desktop, single panel on mobile */}
+      <div className="flex-1 flex overflow-hidden">
+        {isMobile ? (
+          mobileView === 'tree' ? (
+            <div className="flex-1 min-w-0">
+              <SkillTreeTab starSystemId={starSystemId} loaded={dataLoaded} />
+            </div>
+          ) : (
+            <div className="flex-1 min-w-0 overflow-y-auto">
+              <TodosTab starSystemId={starSystemId} loaded={dataLoaded} />
+            </div>
+          )
         ) : (
-          <TodosTab starSystemId={starSystemId} loaded={dataLoaded} />
+          <>
+            <div className="flex-1 min-w-0">
+              <SkillTreeTab starSystemId={starSystemId} loaded={dataLoaded} />
+            </div>
+            <div className="w-[420px] flex-shrink-0 border-l border-zinc-800 overflow-y-auto bg-zinc-950/40">
+              <TodosTab starSystemId={starSystemId} loaded={dataLoaded} />
+            </div>
+          </>
         )}
       </div>
 

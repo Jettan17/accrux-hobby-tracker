@@ -39,8 +39,8 @@ User creates Star Systems (hobbies)
 
 | Route | File | Purpose |
 |-------|------|---------|
-| `/` | `page.tsx` | Dashboard — lists star systems as cards |
-| `/star-system/[id]` | `star-system/[id]/page.tsx` | Star system detail (tabs: Tasks, Skill Tree) |
+| `/` | `page.tsx` | Dashboard — galaxy view of star system clusters |
+| `/star-system/[id]` | `star-system/[id]/page.tsx` | Star system detail (split: Skill Tree + Tasks; mobile toggle) |
 | `/achievements` | `achievements/page.tsx` | Achievements gallery |
 | `/login` | `login/page.tsx` | Login form |
 | `/signup` | `signup/page.tsx` | Signup form |
@@ -58,11 +58,12 @@ layout/
   mobile-nav.tsx       — Bottom nav for mobile
 
 star-system/
-  dashboard-content.tsx       — Grid of StarSystemCards
-  star-system-card.tsx        — Card with progress bar
-  star-system-detail.tsx      — Detail page: header + tab router (Tasks/Skill Tree)
-  todos-tab.tsx               — Hierarchical sortable todo list (dnd-kit)
-  skill-tree-tab.tsx          — Wrapper for skill tree canvas
+  dashboard-content.tsx       — Galaxy view: positions clusters in sunflower spiral, renders backdrop + meteor
+  star-cluster.tsx            — Single cluster sphere + label; pulses gold when fully complete
+  meteor-suggestion.tsx       — Periodic meteor that suggests an incomplete todo to tackle
+  star-system-detail.tsx      — Detail page: header + split body (skill tree + tasks); mobile uses a tree/tasks toggle
+  todos-tab.tsx               — Hierarchical sortable todo list (dnd-kit) — right pane on desktop
+  skill-tree-tab.tsx          — Skill tree canvas wrapper — left pane on desktop
   create-star-system-dialog.tsx
   edit-star-system-dialog.tsx
   delete-star-system-dialog.tsx

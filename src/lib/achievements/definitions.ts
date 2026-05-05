@@ -61,60 +61,11 @@ export const ACHIEVEMENTS: readonly Achievement[] = [
   },
 
   {
-    id: 'cartographer',
-    name: 'Cartographer',
-    description: 'Export your first backup',
-    iconName: 'map',
-    condition: { kind: 'has-exported' },
-  },
-  {
     id: 'personal-touch',
     name: 'Personal Touch',
     description: 'Upload a custom background image',
     iconName: 'image',
     condition: { kind: 'has-custom-image' },
-  },
-  {
-    id: 'branching-out',
-    name: 'Branching Out',
-    description: 'Nest a task three levels deep',
-    iconName: 'git-branch',
-    condition: { kind: 'todo-nesting-depth', threshold: 3 },
-  },
-  {
-    id: 'constellation',
-    name: 'Constellation',
-    description: 'Have ten tasks in a single star system',
-    iconName: 'network',
-    condition: { kind: 'todos-in-single-system', threshold: 10 },
-  },
-  {
-    id: 'polymath',
-    name: 'Polymath',
-    description: 'Have three star systems each with 10+ completed tasks',
-    iconName: 'graduation-cap',
-    condition: { kind: 'systems-with-completed-todos', minSystems: 3, completedThreshold: 10 },
-  },
-  {
-    id: 'renaissance',
-    name: 'Renaissance',
-    description: 'Use five different theme colors across your systems',
-    iconName: 'palette',
-    condition: { kind: 'distinct-theme-colors', threshold: 5 },
-  },
-  {
-    id: 'power-hour',
-    name: 'Power Hour',
-    description: 'Complete five tasks within an hour',
-    iconName: 'timer',
-    condition: { kind: 'todos-in-window', threshold: 5, windowMs: 60 * 60 * 1000 },
-  },
-  {
-    id: 'marathon',
-    name: 'Marathon',
-    description: 'Complete ten tasks in a single day',
-    iconName: 'medal',
-    condition: { kind: 'todos-in-window', threshold: 10, windowMs: 24 * 60 * 60 * 1000 },
   },
 ];
 

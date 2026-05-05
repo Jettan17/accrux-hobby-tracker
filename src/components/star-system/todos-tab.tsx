@@ -442,7 +442,7 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
               title="Edit as text"
             >
               <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Text</span>
+              <span>Text</span>
             </button>
           </div>
 
@@ -512,7 +512,7 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
               className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors cursor-pointer flex items-center gap-1.5 text-sm"
             >
               <List className="h-4 w-4" />
-              <span className="hidden sm:inline">List</span>
+              <span>List</span>
             </button>
           </div>
 

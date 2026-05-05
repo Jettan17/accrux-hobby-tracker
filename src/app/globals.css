@@ -25,3 +25,42 @@ body {
 .animate-slide-up {
   animation: slide-up 0.25s ease-out;
 }
+
+@keyframes gold-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 30px rgba(251,191,36,0.7),
+      0 0 60px rgba(251,191,36,0.45),
+      0 0 100px rgba(251,191,36,0.2),
+      inset 0 0 20px rgba(251,191,36,0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 50px rgba(251,191,36,0.9),
+      0 0 110px rgba(251,191,36,0.65),
+      0 0 170px rgba(251,191,36,0.35),
+      inset 0 0 32px rgba(251,191,36,0.45);
+  }
+}
+
+.animate-gold-pulse {
+  animation: gold-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes meteor-streak {
+  0% {
+    transform: translate(var(--from-x), var(--from-y));
+    opacity: 0;
+  }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
+  100% {
+    transform: translate(var(--to-x), var(--to-y));
+    opacity: 0;
+  }
+}
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: var(--twinkle-min, 0.2); }
+  50% { opacity: var(--twinkle-max, 0.7); }
+}

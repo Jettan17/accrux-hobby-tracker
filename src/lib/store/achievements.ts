@@ -48,14 +48,10 @@ export const createAchievementSlice: StateCreator<AppState, [], [], AchievementS
       Object.values(state.userAchievements).map((ua) => ua.achievementId),
     );
 
-    const hasExported =
-      typeof window !== 'undefined' && window.localStorage.getItem('accrux:has-exported') === '1';
-
     const newlyUnlocked = evaluateAchievements({
       starSystems: state.starSystems,
       todoItems: state.todoItems,
       unlockedAchievementIds: unlockedIds,
-      hasExported,
     });
 
     if (newlyUnlocked.length === 0) return;
