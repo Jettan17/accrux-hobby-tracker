@@ -20,9 +20,9 @@ export type PlanetNodeData = {
 export type PlanetNodeType = Node<PlanetNodeData, 'planet'>;
 
 const VARIANT_SIZES: Record<NodeVariant, number> = {
-  'gas-giant': 100,
-  moon: 72,
-  asteroid: 52,
+  'gas-giant': 150,
+  moon: 110,
+  asteroid: 80,
 };
 
 const VARIANT_LABELS: Record<NodeVariant, string> = {
@@ -31,18 +31,23 @@ const VARIANT_LABELS: Record<NodeVariant, string> = {
   asteroid: 'Task',
 };
 
-// Pick the largest font size at which the label still fits inside the circular
-// content area without truncation. We approximate character width as
-// 0.58 × fontSize and require ceil(label.length / charsPerLine) lines to fit
-// within the available height.
+// Pick the largest font size at which the label fits inside the circular
+// content area without truncation AND without breaking words mid-character.
+// Char width approximated as 0.58 × fontSize; the longest word must fit within
+// one line at the chosen size.
 function computeAdaptiveFontSize(label: string, nodeSize: number): number {
-  const innerWidth = nodeSize - 18;
-  const innerHeight = nodeSize - 30;
+  const innerWidth = nodeSize - 22;
+  const innerHeight = nodeSize - 34;
   const lineHeight = 1.15;
   const charWidthRatio = 0.58;
   const len = Math.max(label.length, 1);
-  for (let f = 14; f >= 6; f -= 0.5) {
+  const longestWord = Math.max(
+    1,
+    ...label.split(/\s+/).filter(Boolean).map((w) => w.length),
+  );
+  for (let f = 18; f >= 6; f -= 0.5) {
     const charsPerLine = Math.max(1, Math.floor(innerWidth / (charWidthRatio * f)));
+    if (longestWord > charsPerLine) continue;
     const lines = Math.ceil(len / charsPerLine);
     if (lines * f * lineHeight <= innerHeight) return f;
   }
@@ -153,8 +158,8 @@ function PlanetNodeComponent({ id, data, selected }: NodeProps<PlanetNodeType>) 
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center justify-center" style={{ width: size - 12, maxHeight: size - 12 }}>
           <span
-            className="text-[8px] uppercase tracking-[0.1em] leading-none mb-0.5"
-            style={{ color: palette.text, opacity: 0.45 }}
+            className="text-[9px] uppercase tracking-[0.1em] leading-none mb-1"
+            style={{ color: palette.text, opacity: 0.5 }}
           >
             {VARIANT_LABELS[variant]}
           </span>
@@ -164,8 +169,7 @@ function PlanetNodeComponent({ id, data, selected }: NodeProps<PlanetNodeType>) 
               fontSize: computeAdaptiveFontSize(label, size),
               lineHeight: 1.15,
               color: palette.text,
-              wordBreak: 'break-word',
-              overflowWrap: 'anywhere',
+              overflowWrap: 'break-word',
               textShadow: '0 1px 3px rgba(0,0,0,0.6)',
             }}
             title={label}

@@ -91,8 +91,8 @@ export function layoutTree(nodes: DerivedNode[]): Record<string, LayoutPosition>
     });
   }
 
-  const HORIZONTAL_SPACING = 180;
-  const VERTICAL_SPACING = 150;
+  const HORIZONTAL_SPACING = 240;
+  const VERTICAL_SPACING = 200;
 
   let xCursor = 0;
 
