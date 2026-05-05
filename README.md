@@ -2,6 +2,8 @@
 
 A celestial-themed hobby gamification app that represents hobbies as "star systems" with skill trees, hierarchical task lists, and achievements. Built with Next.js 16, React 19, Supabase, and Zustand.
 
+**Live:** https://accrux-hobby-tracker.vercel.app/
+
 ## Quick Start
 
 ```bash
