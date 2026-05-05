@@ -100,28 +100,6 @@ export const createTodoItemSlice: StateCreator<AppState, [], [], TodoItemSlice> 
     set((state) => ({
       todoItems: { ...state.todoItems, [id]: updated },
     }));
-
-    if (updates.completed === true) {
-      let currentParentId = updated.parentId;
-      while (currentParentId) {
-        const state = get();
-        const parent = state.todoItems[currentParentId];
-        if (!parent || parent.completed) break;
-
-        const children = Object.values(state.todoItems).filter(
-          (t) => t.parentId === currentParentId,
-        );
-        if (children.length === 0 || !children.every((t) => t.completed)) break;
-
-        const parentUpdated: TodoItem = { ...parent, completed: true, updatedAt: now() };
-        await supabase.from('todo_items').update({ completed: true, updated_at: parentUpdated.updatedAt }).eq('id', parent.id);
-        set((s) => ({
-          todoItems: { ...s.todoItems, [parent.id]: parentUpdated },
-        }));
-
-        currentParentId = parent.parentId;
-      }
-    }
   },
 
   reorderTodoItems: async (starSystemId, orderedIds) => {

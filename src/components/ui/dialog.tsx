@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 interface DialogProps {
@@ -12,6 +13,11 @@ interface DialogProps {
 
 export function Dialog({ open, onClose, title, children }: DialogProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -29,9 +35,12 @@ export function Dialog({ open, onClose, title, children }: DialogProps) {
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  // Portal to <body> so the dialog escapes any transformed ancestor (e.g. the
+  // pan/zoom layer in the galaxy view), where `position: fixed` would otherwise
+  // be containing-block-anchored to the transform instead of the viewport.
+  return createPortal(
     <div
       ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
@@ -51,6 +60,7 @@ export function Dialog({ open, onClose, title, children }: DialogProps) {
         </div>
         <div className="px-5 py-4 overflow-y-auto">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

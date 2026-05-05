@@ -31,6 +31,24 @@ const VARIANT_LABELS: Record<NodeVariant, string> = {
   asteroid: 'Task',
 };
 
+// Pick the largest font size at which the label still fits inside the circular
+// content area without truncation. We approximate character width as
+// 0.58 × fontSize and require ceil(label.length / charsPerLine) lines to fit
+// within the available height.
+function computeAdaptiveFontSize(label: string, nodeSize: number): number {
+  const innerWidth = nodeSize - 18;
+  const innerHeight = nodeSize - 30;
+  const lineHeight = 1.15;
+  const charWidthRatio = 0.58;
+  const len = Math.max(label.length, 1);
+  for (let f = 14; f >= 6; f -= 0.5) {
+    const charsPerLine = Math.max(1, Math.floor(innerWidth / (charWidthRatio * f)));
+    const lines = Math.ceil(len / charsPerLine);
+    if (lines * f * lineHeight <= innerHeight) return f;
+  }
+  return 6;
+}
+
 function PlanetNodeComponent({ id, data, selected }: NodeProps<PlanetNodeType>) {
   const { label, variant, status, palette, isMobile, onToggleComplete, onEdit, onDelete } = data;
   const size = VARIANT_SIZES[variant];
@@ -133,7 +151,7 @@ function PlanetNodeComponent({ id, data, selected }: NodeProps<PlanetNodeType>) 
         )}
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center overflow-hidden" style={{ width: size - 16, maxHeight: size - 16 }}>
+        <div className="relative z-10 flex flex-col items-center justify-center" style={{ width: size - 12, maxHeight: size - 12 }}>
           <span
             className="text-[8px] uppercase tracking-[0.1em] leading-none mb-0.5"
             style={{ color: palette.text, opacity: 0.45 }}
@@ -141,14 +159,13 @@ function PlanetNodeComponent({ id, data, selected }: NodeProps<PlanetNodeType>) 
             {VARIANT_LABELS[variant]}
           </span>
           <span
-            className="text-[11px] font-bold text-center leading-tight max-w-full"
+            className="font-bold text-center max-w-full"
             style={{
+              fontSize: computeAdaptiveFontSize(label, size),
+              lineHeight: 1.15,
               color: palette.text,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
+              wordBreak: 'break-word',
+              overflowWrap: 'anywhere',
               textShadow: '0 1px 3px rgba(0,0,0,0.6)',
             }}
             title={label}

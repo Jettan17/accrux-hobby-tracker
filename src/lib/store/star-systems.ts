@@ -17,6 +17,7 @@ export interface StarSystemSlice {
     themeConfig: ThemeConfig;
   }) => Promise<StarSystem>;
   updateStarSystem: (id: string, updates: Partial<Pick<StarSystem, 'name' | 'description' | 'themeConfig' | 'sortOrder'>>) => Promise<void>;
+  reorderStarSystems: (orderedIds: string[]) => Promise<void>;
   deleteStarSystem: (id: string) => Promise<void>;
 }
 
@@ -101,6 +102,31 @@ export const createStarSystemSlice: StateCreator<AppState, [], [], StarSystemSli
     set((state) => ({
       starSystems: { ...state.starSystems, [id]: updated },
     }));
+  },
+
+  reorderStarSystems: async (orderedIds) => {
+    const supabase = createClient();
+    const timestamp = now();
+    const current = get().starSystems;
+
+    const updated: Record<string, StarSystem> = { ...current };
+    orderedIds.forEach((id, index) => {
+      const existing = current[id];
+      if (existing && existing.sortOrder !== index) {
+        updated[id] = { ...existing, sortOrder: index, updatedAt: timestamp };
+      }
+    });
+
+    set({ starSystems: updated });
+
+    for (let i = 0; i < orderedIds.length; i++) {
+      const id = orderedIds[i];
+      if (current[id]?.sortOrder === i) continue;
+      await supabase
+        .from('star_systems')
+        .update({ sort_order: i, updated_at: timestamp })
+        .eq('id', id);
+    }
   },
 
   deleteStarSystem: async (id) => {
