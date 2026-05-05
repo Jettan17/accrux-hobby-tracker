@@ -18,8 +18,8 @@ interface ActiveMeteor {
 }
 
 const FIRST_SPAWN_DELAY_MS = 6_000;
-const SPAWN_INTERVAL_MS = 120_000;
-const ANIM_DURATION_S = 75;
+const SPAWN_INTERVAL_MS = 30_000;
+const ANIM_DURATION_S = 25;
 
 function pickSuggestion(): { todo: TodoItem; system: StarSystem } | null {
   const state = useAppStore.getState();
@@ -65,6 +65,14 @@ function buildMeteor(): ActiveMeteor | null {
   };
 }
 
+function recomputeAngle(m: ActiveMeteor): number {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const dxPx = ((m.toX - m.fromX) * vw) / 100;
+  const dyPx = ((m.toY - m.fromY) * vh) / 100;
+  return (Math.atan2(dyPx, dxPx) * 180) / Math.PI;
+}
+
 export function MeteorSuggestion() {
   const todoItems = useAppStore((s) => s.todoItems);
   const hasIncomplete = Object.values(todoItems).some((t) => !t.completed);
@@ -98,6 +106,19 @@ export function MeteorSuggestion() {
       if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
     };
   }, [hasIncomplete]);
+
+  // Trajectory is in vw/vh, so the on-screen angle depends on the current
+  // viewport aspect ratio. Recompute on resize so the trail stays aligned
+  // with motion (e.g. when devtools toggles a mobile viewport mid-flight).
+  const hasActiveMeteor = meteor !== null;
+  useEffect(() => {
+    if (!hasActiveMeteor) return;
+    const handler = () => {
+      setMeteor((m) => (m ? { ...m, angleDeg: recomputeAngle(m) } : m));
+    };
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, [hasActiveMeteor]);
 
   if (!meteor) return null;
 
