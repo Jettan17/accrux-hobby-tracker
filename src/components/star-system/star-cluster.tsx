@@ -13,13 +13,12 @@ interface StarClusterProps {
   system: StarSystem;
   x: number;
   y: number;
-  scale?: number;
 }
 
 const GOLD_PRIMARY = '#fbbf24';
 const GOLD_ACCENT = '#fde047';
 
-export function StarCluster({ system, x, y, scale = 1 }: StarClusterProps) {
+export function StarCluster({ system, x, y }: StarClusterProps) {
   const stats = useAppStore(useShallow((s) => selectCompletionStats(s, system.id)));
   const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -27,7 +26,7 @@ export function StarCluster({ system, x, y, scale = 1 }: StarClusterProps) {
 
   const isComplete = stats.totalTodos > 0 && stats.completedTodos === stats.totalTodos;
 
-  const baseSize = (110 + Math.min(stats.totalTodos * 4, 50)) * scale;
+  const baseSize = 110 + Math.min(stats.totalTodos * 4, 50);
 
   const primary = isComplete ? GOLD_PRIMARY : system.themeConfig.palette.primary;
   const accent = isComplete ? GOLD_ACCENT : system.themeConfig.palette.accent;
