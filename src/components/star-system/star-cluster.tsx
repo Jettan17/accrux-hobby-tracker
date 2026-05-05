@@ -118,7 +118,7 @@ export function StarCluster({ system, x, y }: StarClusterProps) {
                 e.stopPropagation();
                 setMenuOpen((v) => !v);
               }}
-              className="rounded-lg p-1.5 text-zinc-400 opacity-0 group-hover:opacity-100 hover:bg-zinc-900/80 hover:text-zinc-200 transition-all cursor-pointer backdrop-blur-sm border border-transparent hover:border-zinc-700"
+              className="rounded-lg p-1.5 text-zinc-300 opacity-100 md:opacity-0 md:group-hover:opacity-100 bg-zinc-900/60 md:bg-transparent border border-zinc-700/60 md:border-transparent hover:bg-zinc-900/80 hover:text-zinc-100 hover:border-zinc-700 transition-all cursor-pointer backdrop-blur-sm"
               aria-label="Star system options"
             >
               <MoreVertical className="h-4 w-4" />

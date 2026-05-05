@@ -201,10 +201,15 @@ export function DashboardContent() {
     return { x: clientX - rect.left, y: clientY - rect.top };
   }, []);
 
+  // Snapshot of view at gesture start, so pinch math doesn't drift through the gesture.
+  const viewRef = useRef<ViewTransform>(view);
+  useEffect(() => {
+    viewRef.current = view;
+  }, [view]);
+
   const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    const el = containerRef.current;
-    if (!el) return;
-    el.setPointerCapture(e.pointerId);
+    // Only start gesture tracking — no pointer capture (would re-target click events
+    // away from the cluster's <Link> / menu button on some browsers).
     const local = localCoords(e.clientX, e.clientY);
     pointersRef.current.set(e.pointerId, local);
     totalDragRef.current = 0;
@@ -216,58 +221,72 @@ export function DashboardContent() {
       const [a, b] = [...pointersRef.current.values()];
       pinchRef.current = {
         startDist: Math.hypot(a.x - b.x, a.y - b.y) || 1,
-        startView: view,
+        startView: viewRef.current,
         startMidX: (a.x + b.x) / 2,
         startMidY: (a.y + b.y) / 2,
       };
       lastPointerRef.current = null;
     }
-  }, [localCoords, view]);
-
-  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (!pointersRef.current.has(e.pointerId)) return;
-    const local = localCoords(e.clientX, e.clientY);
-    pointersRef.current.set(e.pointerId, local);
-
-    if (pointersRef.current.size === 2 && pinchRef.current) {
-      const [a, b] = [...pointersRef.current.values()];
-      const newDist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
-      const newMidX = (a.x + b.x) / 2;
-      const newMidY = (a.y + b.y) / 2;
-
-      const start = pinchRef.current;
-      const factor = newDist / start.startDist;
-      const newZoom = clamp(start.startView.zoom * factor, MIN_ZOOM, MAX_ZOOM);
-      const worldX = (start.startMidX - start.startView.panX) / start.startView.zoom;
-      const worldY = (start.startMidY - start.startView.panY) / start.startView.zoom;
-      const newPanX = newMidX - worldX * newZoom;
-      const newPanY = newMidY - worldY * newZoom;
-      totalDragRef.current += Math.abs(newMidX - start.startMidX) + Math.abs(newMidY - start.startMidY);
-      setView({ panX: newPanX, panY: newPanY, zoom: newZoom });
-      return;
-    }
-
-    if (pointersRef.current.size === 1 && lastPointerRef.current) {
-      const dx = local.x - lastPointerRef.current.x;
-      const dy = local.y - lastPointerRef.current.y;
-      lastPointerRef.current = local;
-      totalDragRef.current += Math.hypot(dx, dy);
-      setView((v) => ({ ...v, panX: v.panX + dx, panY: v.panY + dy }));
-    }
   }, [localCoords]);
 
-  const handlePointerUpOrCancel = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    pointersRef.current.delete(e.pointerId);
-    if (pointersRef.current.size < 2) pinchRef.current = null;
-    if (pointersRef.current.size === 0) {
-      lastPointerRef.current = null;
-      if (totalDragRef.current > DRAG_THRESHOLD_PX) suppressNextClick();
-      totalDragRef.current = 0;
-    } else if (pointersRef.current.size === 1) {
-      const remaining = [...pointersRef.current.values()][0];
-      lastPointerRef.current = remaining;
+  // Window-level pointer listeners so a drag continues if the pointer leaves the
+  // container, without setPointerCapture interfering with click-event delivery.
+  useEffect(() => {
+    function onMove(e: PointerEvent) {
+      if (!pointersRef.current.has(e.pointerId)) return;
+      const local = localCoords(e.clientX, e.clientY);
+      pointersRef.current.set(e.pointerId, local);
+
+      if (pointersRef.current.size === 2 && pinchRef.current) {
+        const [a, b] = [...pointersRef.current.values()];
+        const newDist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+        const newMidX = (a.x + b.x) / 2;
+        const newMidY = (a.y + b.y) / 2;
+
+        const start = pinchRef.current;
+        const factor = newDist / start.startDist;
+        const newZoom = clamp(start.startView.zoom * factor, MIN_ZOOM, MAX_ZOOM);
+        const worldX = (start.startMidX - start.startView.panX) / start.startView.zoom;
+        const worldY = (start.startMidY - start.startView.panY) / start.startView.zoom;
+        const newPanX = newMidX - worldX * newZoom;
+        const newPanY = newMidY - worldY * newZoom;
+        totalDragRef.current += Math.abs(newMidX - start.startMidX) + Math.abs(newMidY - start.startMidY);
+        setView({ panX: newPanX, panY: newPanY, zoom: newZoom });
+        return;
+      }
+
+      if (pointersRef.current.size === 1 && lastPointerRef.current) {
+        const dx = local.x - lastPointerRef.current.x;
+        const dy = local.y - lastPointerRef.current.y;
+        lastPointerRef.current = local;
+        totalDragRef.current += Math.hypot(dx, dy);
+        setView((v) => ({ ...v, panX: v.panX + dx, panY: v.panY + dy }));
+      }
     }
-  }, []);
+
+    function onEnd(e: PointerEvent) {
+      if (!pointersRef.current.has(e.pointerId)) return;
+      pointersRef.current.delete(e.pointerId);
+      if (pointersRef.current.size < 2) pinchRef.current = null;
+      if (pointersRef.current.size === 0) {
+        lastPointerRef.current = null;
+        if (totalDragRef.current > DRAG_THRESHOLD_PX) suppressNextClick();
+        totalDragRef.current = 0;
+      } else if (pointersRef.current.size === 1) {
+        const remaining = [...pointersRef.current.values()][0];
+        lastPointerRef.current = remaining;
+      }
+    }
+
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onEnd);
+    window.addEventListener('pointercancel', onEnd);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onEnd);
+      window.removeEventListener('pointercancel', onEnd);
+    };
+  }, [localCoords]);
 
   const zoomAroundPoint = useCallback((cx: number, cy: number, factor: number) => {
     setView((v) => {
@@ -319,9 +338,6 @@ export function DashboardContent() {
         cursor: 'grab',
       }}
       onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUpOrCancel}
-      onPointerCancel={handlePointerUpOrCancel}
     >
       <StarsBackdrop />
 
