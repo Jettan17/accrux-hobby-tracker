@@ -4,9 +4,10 @@ import { createSkillNodeSlice, type SkillNodeSlice } from './skill-nodes';
 import { createSkillEdgeSlice, type SkillEdgeSlice } from './skill-edges';
 import { createTodoItemSlice, type TodoItemSlice } from './todo-items';
 import { createAchievementSlice, type AchievementSlice } from './achievements';
+import { createTutorialSlice, type TutorialSlice } from './tutorial';
 import type { TodoItem } from '@/types';
 
-export type AppState = StarSystemSlice & SkillNodeSlice & SkillEdgeSlice & TodoItemSlice & AchievementSlice;
+export type AppState = StarSystemSlice & SkillNodeSlice & SkillEdgeSlice & TodoItemSlice & AchievementSlice & TutorialSlice;
 
 export const useAppStore = create<AppState>()((...args) => ({
   ...createStarSystemSlice(...args),
@@ -14,6 +15,7 @@ export const useAppStore = create<AppState>()((...args) => ({
   ...createSkillEdgeSlice(...args),
   ...createTodoItemSlice(...args),
   ...createAchievementSlice(...args),
+  ...createTutorialSlice(...args),
 }));
 
 // Selectors

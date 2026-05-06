@@ -433,6 +433,7 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
                 placeholder="Add a new item..."
                 disabled={adding}
                 autoFocus
+                data-tour="add-todo"
                 className="flex-1 min-w-0 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-zinc-500 transition-colors disabled:opacity-50"
               />
               <button
@@ -445,6 +446,7 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
             </form>
             <button
               onClick={handleSwitchToText}
+              data-tour="text-view"
               className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-zinc-400 hover:text-zinc-100 hover:border-zinc-500 transition-colors cursor-pointer flex items-center gap-1.5 text-sm flex-shrink-0"
               title="Edit as text"
             >
@@ -475,12 +477,13 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
                 strategy={verticalListSortingStrategy}
               >
                 <ul className="space-y-0.5">
-                  {visibleList.map((item) => (
+                  {visibleList.map((item, idx) => (
                     <SortableTodoItemRow
                       key={item.todo.id}
                       item={item}
                       collapsed={collapsedIds.has(item.todo.id)}
                       onToggleCollapse={toggleCollapse}
+                      isFirst={idx === 0}
                     />
                   ))}
                 </ul>
@@ -588,10 +591,12 @@ function SortableTodoItemRow({
   item,
   collapsed,
   onToggleCollapse,
+  isFirst,
 }: {
   item: FlatTodoItem;
   collapsed: boolean;
   onToggleCollapse: (id: string) => void;
+  isFirst?: boolean;
 }) {
   const { todo, depth, hasChildren } = item;
   const [editing, setEditing] = useState(false);
@@ -602,6 +607,8 @@ function SortableTodoItemRow({
   const deleteTodoItem = useAppStore((s) => s.deleteTodoItem);
   const indentTodoItem = useAppStore((s) => s.indentTodoItem);
   const outdentTodoItem = useAppStore((s) => s.outdentTodoItem);
+  const tourRunning = useAppStore((s) => s.tourRunning);
+  const forceActionsVisible = isFirst && tourRunning;
 
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
     useSortable({ id: todo.id });
@@ -698,6 +705,7 @@ function SortableTodoItemRow({
 
       <button
         onClick={handleToggle}
+        data-tour={isFirst ? 'todo-checkbox' : undefined}
         className={`
           h-5 w-5 rounded border-2 flex-shrink-0 flex items-center justify-center transition-colors cursor-pointer
           ${
@@ -767,9 +775,10 @@ function SortableTodoItemRow({
       )}
 
       {!editing && (
-        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+        <div className={`flex items-center gap-0.5 transition-opacity flex-shrink-0 ${forceActionsVisible ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
           <button
             onClick={handleToggleLock}
+            data-tour={isFirst ? 'todo-lock' : undefined}
             className="rounded p-1 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors cursor-pointer"
             title={todo.locked ? 'Unlock' : 'Lock'}
           >

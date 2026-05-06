@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Star, LogOut, Settings, Upload, Download } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Star, LogOut, Settings, Upload, Download, HelpCircle } from 'lucide-react';
 import { signOut } from '@/lib/supabase/auth-actions';
 import { Button } from '@/components/ui/button';
 import { useAppStore } from '@/lib/store';
@@ -31,6 +32,21 @@ export function Header({ userEmail }: HeaderProps) {
   const skillNodes = useAppStore((s) => s.skillNodes);
   const skillEdges = useAppStore((s) => s.skillEdges);
   const todoItems = useAppStore((s) => s.todoItems);
+  const startTour = useAppStore((s) => s.startTour);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  function handleStartTutorial() {
+    const systems = Object.values(starSystems).sort((a, b) => a.sortOrder - b.sortOrder);
+    if (systems.length === 0) {
+      alert('Create a star system first, then start the tutorial.');
+      return;
+    }
+    if (!pathname.startsWith('/star-system/')) {
+      router.push(`/star-system/${systems[0].id}`);
+    }
+    startTour();
+  }
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -222,6 +238,14 @@ export function Header({ userEmail }: HeaderProps) {
         {userEmail && (
           <span className="hidden text-sm text-zinc-400 sm:block">{userEmail}</span>
         )}
+
+        <button
+          onClick={handleStartTutorial}
+          title="Start tutorial"
+          className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors cursor-pointer"
+        >
+          <HelpCircle className="h-4 w-4" />
+        </button>
 
         <div className="relative" ref={menuRef}>
           <button

@@ -8,6 +8,7 @@ import { CreateStarSystemDialog } from '@/components/star-system/create-star-sys
 import { AchievementToast } from '@/components/achievements/achievement-toast';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { ToastProvider } from '@/components/ui/toast';
+import { TutorialTour } from '@/components/onboarding/tutorial-tour';
 import { useAppStore } from '@/lib/store';
 import { useAchievementTrigger } from '@/hooks/use-achievement-trigger';
 import { useRealtimeSync } from '@/hooks/use-realtime-sync';
@@ -73,6 +74,7 @@ export function AppShell({ userEmail, userId, children }: AppShellProps) {
         />
 
         <AchievementToast />
+        <TutorialTour />
       </div>
     </ToastProvider>
   );

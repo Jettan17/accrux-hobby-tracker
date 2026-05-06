@@ -99,6 +99,7 @@ export function StarSystemDetail({ starSystemId }: StarSystemDetailProps) {
 
           <button
             onClick={handleExport}
+            data-tour="export-system"
             title="Export star system"
             className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors cursor-pointer"
           >
@@ -106,6 +107,7 @@ export function StarSystemDetail({ starSystemId }: StarSystemDetailProps) {
           </button>
           <button
             onClick={() => setEditOpen(true)}
+            data-tour="edit-system"
             title="Edit"
             className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors cursor-pointer"
           >

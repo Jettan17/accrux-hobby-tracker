@@ -356,6 +356,9 @@ export function DashboardContent() {
           <p className="text-sm text-zinc-400 max-w-sm">
             Create your first star system to start charting your hobbies.
           </p>
+          <p className="text-xs text-zinc-500 max-w-sm mt-3">
+            New here? Click the <span className="text-zinc-300">?</span> in the top-right for a quick tour.
+          </p>
         </div>
       )}
 

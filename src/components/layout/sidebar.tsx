@@ -66,6 +66,7 @@ export function Sidebar({ starSystems, onCreateClick }: SidebarProps) {
           href="/achievements"
           active={pathname === '/achievements'}
           icon={<Trophy className="h-4 w-4" />}
+          dataTour="achievements"
         >
           Achievements
         </SidebarLink>
@@ -97,6 +98,7 @@ export function Sidebar({ starSystems, onCreateClick }: SidebarProps) {
 
         <button
           onClick={onCreateClick}
+          data-tour="create-system"
           className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100 transition-colors cursor-pointer"
         >
           <Plus className="h-4 w-4" />
@@ -166,15 +168,18 @@ function SidebarLink({
   active,
   icon,
   children,
+  dataTour,
 }: {
   href: string;
   active: boolean;
   icon?: React.ReactNode;
   children: React.ReactNode;
+  dataTour?: string;
 }) {
   return (
     <Link
       href={href}
+      data-tour={dataTour}
       className={`
         flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors
         ${active ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100'}

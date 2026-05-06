@@ -17,6 +17,7 @@ export function MobileNav({ onCreateClick }: MobileNavProps) {
         <NavItem href="/" active={pathname === '/'} icon={<Home className="h-5 w-5" />} label="Home" />
         <button
           onClick={onCreateClick}
+          data-tour="create-system"
           className="flex flex-col items-center gap-0.5 px-3 py-1 text-zinc-400 active:text-white cursor-pointer"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
@@ -29,6 +30,7 @@ export function MobileNav({ onCreateClick }: MobileNavProps) {
           active={pathname === '/achievements'}
           icon={<Trophy className="h-5 w-5" />}
           label="Awards"
+          dataTour="achievements"
         />
       </div>
     </nav>
@@ -40,15 +42,18 @@ function NavItem({
   active,
   icon,
   label,
+  dataTour,
 }: {
   href: string;
   active: boolean;
   icon: React.ReactNode;
   label: string;
+  dataTour?: string;
 }) {
   return (
     <Link
       href={href}
+      data-tour={dataTour}
       className={`flex flex-col items-center gap-0.5 px-3 py-1 transition-colors ${
         active ? 'text-white' : 'text-zinc-500'
       }`}
