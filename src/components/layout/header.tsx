@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Star, LogOut, Settings, Upload, Download, HelpCircle } from 'lucide-react';
+import { LogOut, Settings, Upload, Download, HelpCircle } from 'lucide-react';
 import { signOut } from '@/lib/supabase/auth-actions';
 import { Button } from '@/components/ui/button';
 import { useAppStore } from '@/lib/store';
@@ -230,7 +231,7 @@ export function Header({ userEmail }: HeaderProps) {
   return (
     <header className="flex items-center justify-between border-b border-zinc-800 bg-zinc-950 px-4 py-3 lg:px-6">
       <div className="flex items-center gap-2">
-        <Star className="h-6 w-6 text-white" />
+        <Image src="/icons/icon.svg" alt="" aria-hidden width={24} height={24} className="h-6 w-6" />
         <span className="text-lg font-bold tracking-tight text-white">Accrux</span>
       </div>
 

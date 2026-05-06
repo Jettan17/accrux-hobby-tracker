@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { signInWithEmail, signInWithGoogle } from '@/lib/supabase/auth-actions';
-import { Star } from 'lucide-react';
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +36,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-2">
-            <Star className="h-8 w-8 text-white" />
+            <Image src="/icons/icon.svg" alt="" aria-hidden width={32} height={32} className="h-8 w-8" />
             <h1 className="text-3xl font-bold text-white tracking-tight">Accrux</h1>
           </div>
           <p className="text-sm text-zinc-400">Sign in to your account</p>
