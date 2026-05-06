@@ -14,7 +14,7 @@ export interface TodoItemSlice {
     title: string;
     parentId?: string | null;
   }) => Promise<TodoItem>;
-  updateTodoItem: (id: string, updates: Partial<Pick<TodoItem, 'title' | 'completed' | 'sortOrder' | 'parentId'>>) => Promise<void>;
+  updateTodoItem: (id: string, updates: Partial<Pick<TodoItem, 'title' | 'completed' | 'locked' | 'sortOrder' | 'parentId'>>) => Promise<void>;
   reorderTodoItems: (starSystemId: string, orderedIds: string[]) => Promise<void>;
   moveTodoItem: (id: string, newParentId: string | null, insertIndex: number) => Promise<void>;
   indentTodoItem: (id: string) => Promise<void>;
@@ -58,6 +58,7 @@ export const createTodoItemSlice: StateCreator<AppState, [], [], TodoItemSlice> 
       parentId,
       title,
       completed: false,
+      locked: false,
       sortOrder,
       createdAt: timestamp,
       updatedAt: timestamp,
@@ -69,6 +70,7 @@ export const createTodoItemSlice: StateCreator<AppState, [], [], TodoItemSlice> 
       parent_id: item.parentId,
       title: item.title,
       completed: item.completed,
+      locked: item.locked,
       sort_order: item.sortOrder,
     });
 
@@ -91,6 +93,7 @@ export const createTodoItemSlice: StateCreator<AppState, [], [], TodoItemSlice> 
     const dbUpdates: Record<string, unknown> = { updated_at: updated.updatedAt };
     if (updates.title !== undefined) dbUpdates.title = updates.title;
     if (updates.completed !== undefined) dbUpdates.completed = updates.completed;
+    if (updates.locked !== undefined) dbUpdates.locked = updates.locked;
     if (updates.sortOrder !== undefined) dbUpdates.sort_order = updates.sortOrder;
     if (updates.parentId !== undefined) dbUpdates.parent_id = updates.parentId;
 
@@ -278,6 +281,7 @@ function rowToTodoItem(row: Record<string, unknown>): TodoItem {
     parentId: (row.parent_id as string) ?? null,
     title: row.title as string,
     completed: row.completed as boolean,
+    locked: (row.locked as boolean) ?? false,
     sortOrder: row.sort_order as number,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,

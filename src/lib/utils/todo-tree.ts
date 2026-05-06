@@ -6,6 +6,7 @@ export interface DerivedNode {
   label: string;
   variant: NodeVariant;
   completed: boolean;
+  locked: boolean;
   parentId: string | null;
   depth: number;
 }
@@ -51,6 +52,7 @@ export function deriveTodoTree(todos: TodoItem[]): {
       label: todo.title,
       variant: depthToVariant(depth),
       completed: todo.completed,
+      locked: todo.locked,
       parentId: todo.parentId,
       depth,
     });

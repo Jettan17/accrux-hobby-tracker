@@ -4,6 +4,7 @@ export interface TodoItem {
   readonly parentId: string | null;
   readonly title: string;
   readonly completed: boolean;
+  readonly locked: boolean;
   readonly sortOrder: number;
   readonly createdAt: string;
   readonly updatedAt: string;

@@ -57,6 +57,7 @@ function rowToTodoItem(row: Record<string, unknown>): TodoItem {
     parentId: (row.parent_id as string) ?? null,
     title: row.title as string,
     completed: row.completed as boolean,
+    locked: (row.locked as boolean) ?? false,
     sortOrder: row.sort_order as number,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,

@@ -42,7 +42,12 @@ function SkillTreeCanvasInner({ starSystemId, themeConfig }: SkillTreeCanvasProp
   const handleToggleComplete = useCallback(
     (nodeId: string) => {
       const todo = useAppStore.getState().todoItems[nodeId];
-      if (todo) updateTodoItem(nodeId, { completed: !todo.completed });
+      if (!todo) return;
+      if (todo.completed) {
+        updateTodoItem(nodeId, { completed: false });
+      } else {
+        updateTodoItem(nodeId, { completed: true, locked: false });
+      }
     },
     [updateTodoItem],
   );
@@ -60,7 +65,7 @@ function SkillTreeCanvasInner({ starSystemId, themeConfig }: SkillTreeCanvasProp
           label: dn.label,
           description: '',
           variant: dn.variant,
-          status: dn.completed ? 'completed' : 'available',
+          status: dn.locked ? 'locked' : dn.completed ? 'completed' : 'available',
           palette: themeConfig.palette,
           isMobile,
           onToggleComplete: handleToggleComplete,

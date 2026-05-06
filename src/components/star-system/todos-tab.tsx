@@ -20,7 +20,7 @@ import {
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Trash2, Check, X, Pencil, ChevronRight, ChevronDown, FileText, List } from 'lucide-react';
+import { GripVertical, Trash2, Check, X, Pencil, ChevronRight, ChevronDown, FileText, List, Lock, Unlock } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { useAppStore, selectTodosByStarSystem } from '@/lib/store';
 import { createClient } from '@/lib/supabase/client';
@@ -41,6 +41,7 @@ interface FlatTodoItem {
 interface ParsedLine {
   title: string;
   completed: boolean;
+  locked: boolean;
   depth: number;
 }
 
@@ -74,7 +75,7 @@ function serializeTodos(flatList: FlatTodoItem[]): string {
   return flatList
     .map(({ todo, depth }) => {
       const indent = '  '.repeat(depth);
-      const prefix = todo.completed ? '[x] ' : '';
+      const prefix = todo.completed ? '[x] ' : todo.locked ? '[l] ' : '';
       return `${indent}${prefix}${todo.title}`;
     })
     .join('\n');
@@ -89,13 +90,17 @@ function parseText(text: string): ParsedLine[] {
       const depth = Math.floor(indent / 2);
       let content = line.trimStart();
       let completed = false;
+      let locked = false;
       if (content.startsWith('[x] ') || content.startsWith('[X] ')) {
         completed = true;
+        content = content.slice(4);
+      } else if (content.startsWith('[l] ') || content.startsWith('[L] ')) {
+        locked = true;
         content = content.slice(4);
       } else if (content.startsWith('[ ] ')) {
         content = content.slice(4);
       }
-      return { title: content, completed, depth };
+      return { title: content, completed, locked, depth };
     });
 }
 
@@ -312,6 +317,7 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
           parent_id: parentIds[i],
           title: parsed[i].title,
           completed: parsed[i].completed,
+          locked: parsed[i].locked,
           sort_order: sortOrders[i],
           updated_at: timestamp,
         }));
@@ -337,6 +343,7 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
           parentId: parentIds[i],
           title: parsed[i].title,
           completed: parsed[i].completed,
+          locked: parsed[i].locked,
           sortOrder: sortOrders[i],
           createdAt: existing?.createdAt ?? timestamp,
           updatedAt: timestamp,
@@ -407,7 +414,7 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
   const activeItem = activeId ? visibleList.find((v) => v.todo.id === activeId) : null;
 
   return (
-    <div className="p-4 lg:p-8 max-w-2xl">
+    <div className="p-4 lg:p-8 max-w-2xl h-full md:h-auto">
       {viewMode === 'list' ? (
         <>
           <div className="flex gap-2 mb-6">
@@ -416,7 +423,7 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
                 e.preventDefault();
                 handleAdd();
               }}
-              className="flex gap-2 flex-1"
+              className="flex gap-2 flex-1 min-w-0"
             >
               <input
                 ref={inputRef}
@@ -426,7 +433,7 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
                 placeholder="Add a new item..."
                 disabled={adding}
                 autoFocus
-                className="flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-zinc-500 transition-colors disabled:opacity-50"
+                className="flex-1 min-w-0 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-zinc-500 transition-colors disabled:opacity-50"
               />
               <button
                 type="submit"
@@ -488,7 +495,7 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
             </DndContext>
           )}
 
-          <div className="mt-4 text-xs text-zinc-600 space-y-0.5">
+          <div className="hidden lg:block mt-4 text-xs text-zinc-600 space-y-0.5">
             <p>
               <kbd className="px-1 py-0.5 rounded bg-zinc-800 text-zinc-400">Tab</kbd> indent
               &middot;{' '}
@@ -504,7 +511,7 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
           </div>
         </>
       ) : (
-        <>
+        <div className="flex flex-col h-full md:block md:h-auto">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-zinc-300">Edit as text</h3>
             <button
@@ -522,15 +529,15 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
             onChange={(e) => setTextContent(e.target.value)}
             onKeyDown={handleTextareaKeyDown}
             spellCheck={false}
-            className="w-full min-h-[300px] rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-zinc-100 font-mono leading-relaxed placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-zinc-500 transition-colors resize-y"
+            className="w-full flex-1 min-h-0 md:flex-none md:min-h-[300px] rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-zinc-100 font-mono leading-relaxed placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-zinc-500 transition-colors resize-none md:resize-y"
             placeholder={
-              'Type your items here...\n\nIndent with 2 spaces for nesting:\nParent item\n  Child item\n    Grandchild\n\nPrefix with [x] to mark complete:\n[x] Done item'
+              'Type your items here...\n\nIndent with 2 spaces for nesting:\nParent item\n  Child item\n    Grandchild\n\nPrefix with [x] to mark complete or [l] to lock:\n[x] Done item\n[l] Locked item'
             }
           />
 
           <div className="flex items-center justify-between mt-4 gap-3">
             <div className="text-xs text-zinc-600 space-y-0.5">
-              <p>
+              <p className="hidden lg:block">
                 <kbd className="px-1 py-0.5 rounded bg-zinc-800 text-zinc-400">Tab</kbd> indent
                 &middot;{' '}
                 <kbd className="px-1 py-0.5 rounded bg-zinc-800 text-zinc-400">Shift+Tab</kbd>{' '}
@@ -538,7 +545,8 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
               </p>
               <p>
                 2 spaces = nesting level &middot;{' '}
-                <code className="text-zinc-400">[x]</code> = completed
+                <code className="text-zinc-400">[x]</code> = completed &middot;{' '}
+                <code className="text-zinc-400">[l]</code> = locked
               </p>
             </div>
             <div className="flex gap-2 flex-shrink-0">
@@ -557,7 +565,7 @@ export function TodosTab({ starSystemId, loaded }: TodosTabProps) {
               </button>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
@@ -604,7 +612,19 @@ function SortableTodoItemRow({
   };
 
   const handleToggle = () => {
-    updateTodoItem(todo.id, { completed: !todo.completed });
+    if (todo.completed) {
+      updateTodoItem(todo.id, { completed: false });
+    } else {
+      updateTodoItem(todo.id, { completed: true, locked: false });
+    }
+  };
+
+  const handleToggleLock = () => {
+    if (todo.locked) {
+      updateTodoItem(todo.id, { locked: false });
+    } else {
+      updateTodoItem(todo.id, { locked: true, completed: false });
+    }
   };
 
   const handleStartEdit = () => {
@@ -731,18 +751,30 @@ function SortableTodoItemRow({
           </button>
         </form>
       ) : (
-        <div className="flex-1 min-w-0">
-          <span
-            className={`text-sm truncate block ${todo.completed ? 'line-through text-zinc-500' : 'text-zinc-200'}`}
-          >
-            {todo.title}
-          </span>
-          <span className="text-[10px] text-zinc-600 uppercase tracking-wider">{variantLabel}</span>
+        <div className="flex-1 min-w-0 flex items-center gap-1.5">
+          {todo.locked && (
+            <Lock className="h-3 w-3 text-zinc-500 flex-shrink-0" aria-label="Locked" />
+          )}
+          <div className="min-w-0">
+            <span
+              className={`text-sm truncate block ${todo.completed ? 'line-through text-zinc-500' : todo.locked ? 'text-zinc-400' : 'text-zinc-200'}`}
+            >
+              {todo.title}
+            </span>
+            <span className="text-[10px] text-zinc-600 uppercase tracking-wider">{variantLabel}</span>
+          </div>
         </div>
       )}
 
       {!editing && (
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+          <button
+            onClick={handleToggleLock}
+            className="rounded p-1 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors cursor-pointer"
+            title={todo.locked ? 'Unlock' : 'Lock'}
+          >
+            {todo.locked ? <Unlock className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+          </button>
           <button
             onClick={handleStartEdit}
             className="rounded p-1 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors cursor-pointer"
