@@ -35,8 +35,8 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-zinc-950 px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2">
-            <Image src="/icons/icon.svg" alt="" aria-hidden width={32} height={32} className="h-8 w-8" />
+          <div className="flex items-center justify-center gap-3">
+            <Image src="/icons/icon.svg" alt="" aria-hidden width={48} height={48} className="h-12 w-12" />
             <h1 className="text-3xl font-bold text-white tracking-tight">Accrux</h1>
           </div>
           <p className="text-sm text-zinc-400">Sign in to your account</p>

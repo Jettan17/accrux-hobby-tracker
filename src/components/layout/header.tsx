@@ -231,7 +231,7 @@ export function Header({ userEmail }: HeaderProps) {
   return (
     <header className="flex items-center justify-between border-b border-zinc-800 bg-zinc-950 px-4 py-3 lg:px-6">
       <div className="flex items-center gap-2">
-        <Image src="/icons/icon.svg" alt="" aria-hidden width={24} height={24} className="h-6 w-6" />
+        <Image src="/icons/icon.svg" alt="" aria-hidden width={32} height={32} className="h-8 w-8" />
         <span className="text-lg font-bold tracking-tight text-white">Accrux</span>
       </div>
 
