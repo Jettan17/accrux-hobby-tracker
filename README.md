@@ -54,10 +54,10 @@ All authenticated pages wrap children in `AppShell` (layout with sidebar, header
 
 ```
 layout/
-  app-shell.tsx        — Root layout: loads star systems, sets up realtime + achievements
-  header.tsx           — Top bar with user email
-  sidebar.tsx          — Desktop nav with star system list
-  mobile-nav.tsx       — Bottom nav for mobile
+  app-shell.tsx        — Root layout: loads star systems, sets up realtime + achievements, mounts tutorial
+  header.tsx           — Top bar: user email, help (?) icon to start tutorial, settings menu (JSON export/import)
+  sidebar.tsx          — Desktop nav with star system list (drag-to-reorder)
+  mobile-nav.tsx       — Bottom nav for mobile (Home / New / Awards)
 
 star-system/
   dashboard-content.tsx       — Galaxy view: positions clusters in sunflower spiral, renders backdrop + meteor
@@ -88,21 +88,25 @@ achievements/
   achievements-gallery.tsx  — Grid of all achievements (locked/unlocked)
   achievement-toast.tsx     — Toast notification for new unlocks
 
+onboarding/
+  tutorial-tour.tsx    — react-joyride wrapper: 9-step single-page tour, body-centered fallback for missing targets
+
 ui/
   button.tsx, input.tsx, dialog.tsx, confirm-dialog.tsx, toast.tsx, error-boundary.tsx
 ```
 
 ### State Management (`src/lib/store/`)
 
-Zustand store with 5 slices combined in `index.ts`:
+Zustand store with 6 slices combined in `index.ts`:
 
 | Slice | Key State | Key Actions |
 |-------|-----------|-------------|
-| `star-systems.ts` | `starSystems`, `starSystemsLoaded` | `loadStarSystems`, `createStarSystem`, `updateStarSystem`, `deleteStarSystem` |
+| `star-systems.ts` | `starSystems`, `starSystemsLoaded` | `loadStarSystems`, `createStarSystem`, `updateStarSystem`, `deleteStarSystem`, `reorderStarSystems` |
 | `skill-nodes.ts` | `skillNodes` | `loadSkillNodes`, `createSkillNode`, `updateSkillNode`, `deleteSkillNode` |
 | `skill-edges.ts` | `skillEdges` | `loadSkillEdges`, `createSkillEdge`, `deleteSkillEdge` |
 | `todo-items.ts` | `todoItems` | `loadTodoItems`, `createTodoItem`, `updateTodoItem`, `moveTodoItem`, `indentTodoItem`, `outdentTodoItem`, `deleteTodoItem` |
 | `achievements.ts` | `userAchievements`, `pendingToasts` | `loadUserAchievements`, `checkAndUnlockAchievements`, `dismissToast` |
+| `tutorial.ts` | `tourRunning`, `tourStepIndex`, `tourCompleted` | `startTour`, `stopTour`, `setTourStepIndex`, `completeTour`, `initTourFromStorage` |
 
 **Selectors** (in `index.ts`): `selectStarSystemsList`, `selectTodosByStarSystem`, `selectCompletionStats`
 
@@ -121,7 +125,7 @@ Core domain types (all fields `readonly`):
 - **StarSystem**: id, userId, name, description, themeConfig, sortOrder
 - **SkillNode**: id, starSystemId, label, variant (gas-giant/asteroid/moon), completed, positionX/Y
 - **SkillEdge**: id, starSystemId, sourceNodeId, targetNodeId
-- **TodoItem**: id, starSystemId, parentId (nullable for nesting), title, completed, sortOrder
+- **TodoItem**: id, starSystemId, parentId (nullable for nesting), title, completed, locked, sortOrder
 - **Achievement/UserAchievement**: condition-based unlock system
 - **ThemeConfig**: palette (6 colors), background (solid/gradient/image), edgeStyle, defaultNodeOverlay
 
@@ -156,7 +160,8 @@ Key relationships:
 - `ids.ts` — nanoid-based ID generation
 - `timestamps.ts` — ISO timestamp helper
 - `dag.ts` — DAG validation (cycle detection for skill tree edges)
-- `todo-tree.ts` — Tree utilities for hierarchical todos
+- `todo-tree.ts` — Tree utilities for hierarchical todos (text serialize/parse with `[x]` and `[l]` flags)
+- `export-star-system.ts` — Per-star-system JSON export (subset of full backup)
 
 ## Key Patterns
 
@@ -165,4 +170,6 @@ Key relationships:
 - **Immutable state**: All types use `readonly`; store always creates new objects
 - **Hierarchical todos**: `parentId` + `sortOrder` with cascading completion (completing all children auto-completes parent)
 - **Drag-and-drop reordering**: dnd-kit with `moveTodoItem` handling parent reassignment
+- **Locked todos**: `locked` flag is mutually exclusive with `completed`; locked todos are skipped by meteor suggestions
 - **Achievement fingerprinting**: Only evaluates when completed-count or system-count changes
+- **Tutorial fallback**: Tour steps resolve targets at render time and fall back to body-centered text when the element isn't in the DOM (handles new accounts with no todos, mobile-on-skill-tree, etc.)
