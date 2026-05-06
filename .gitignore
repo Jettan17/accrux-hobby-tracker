@@ -54,3 +54,4 @@ supabase/.temp/
 # screenshots
 *.png
 *.jpg
+!public/icons/*.png
