@@ -23,9 +23,9 @@ const ANIM_DURATION_S = 25;
 
 function pickSuggestion(): { todo: TodoItem; system: StarSystem } | null {
   const state = useAppStore.getState();
-  const incomplete = Object.values(state.todoItems).filter((t) => !t.completed);
-  if (incomplete.length === 0) return null;
-  const todo = incomplete[Math.floor(Math.random() * incomplete.length)];
+  const actionable = Object.values(state.todoItems).filter((t) => !t.completed && !t.locked);
+  if (actionable.length === 0) return null;
+  const todo = actionable[Math.floor(Math.random() * actionable.length)];
   if (!todo) return null;
   const system = state.starSystems[todo.starSystemId];
   if (!system) return null;
@@ -75,13 +75,13 @@ function recomputeAngle(m: ActiveMeteor): number {
 
 export function MeteorSuggestion() {
   const todoItems = useAppStore((s) => s.todoItems);
-  const hasIncomplete = Object.values(todoItems).some((t) => !t.completed);
+  const hasActionable = Object.values(todoItems).some((t) => !t.completed && !t.locked);
 
   const [meteor, setMeteor] = useState<ActiveMeteor | null>(null);
   const clearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!hasIncomplete) {
+    if (!hasActionable) {
       setMeteor(null);
       return;
     }
@@ -105,7 +105,7 @@ export function MeteorSuggestion() {
       clearInterval(interval);
       if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
     };
-  }, [hasIncomplete]);
+  }, [hasActionable]);
 
   // Trajectory is in vw/vh, so the on-screen angle depends on the current
   // viewport aspect ratio. Recompute on resize so the trail stays aligned
