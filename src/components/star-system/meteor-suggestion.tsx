@@ -171,7 +171,7 @@ export function MeteorSuggestion() {
 
       {/* suggestion chip: offset below the head, never rotated so it stays readable */}
       <div
-        className="absolute px-3 py-1.5 rounded-lg bg-zinc-950/85 border border-amber-500/40 text-xs text-zinc-100 backdrop-blur-sm whitespace-nowrap max-w-[280px] truncate group-hover:border-amber-300 group-hover:bg-zinc-900/95 transition-colors"
+        className="absolute px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-zinc-950/85 border border-amber-500/40 text-[10px] sm:text-xs text-zinc-100 backdrop-blur-sm whitespace-nowrap max-w-[180px] sm:max-w-[280px] truncate group-hover:border-amber-300 group-hover:bg-zinc-900/95 transition-colors"
         style={{
           top: 18,
           left: 14,

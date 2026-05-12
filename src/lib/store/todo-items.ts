@@ -7,8 +7,10 @@ import { createClient } from '@/lib/supabase/client';
 
 export interface TodoItemSlice {
   todoItems: Record<string, TodoItem>;
+  allTodoItemsLoaded: boolean;
 
   loadTodoItems: (starSystemId: string) => Promise<void>;
+  loadAllTodoItems: () => Promise<void>;
   createTodoItem: (params: {
     starSystemId: string;
     title: string;
@@ -24,6 +26,7 @@ export interface TodoItemSlice {
 
 export const createTodoItemSlice: StateCreator<AppState, [], [], TodoItemSlice> = (set, get) => ({
   todoItems: {},
+  allTodoItemsLoaded: false,
 
   loadTodoItems: async (starSystemId) => {
     const supabase = createClient();
@@ -40,6 +43,22 @@ export const createTodoItemSlice: StateCreator<AppState, [], [], TodoItemSlice> 
       items[row.id as string] = rowToTodoItem(row);
     }
     set({ todoItems: items });
+  },
+
+  loadAllTodoItems: async () => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('todo_items')
+      .select('*')
+      .order('sort_order', { ascending: true });
+
+    if (error) throw error;
+
+    const items: Record<string, TodoItem> = {};
+    for (const row of data ?? []) {
+      items[row.id as string] = rowToTodoItem(row);
+    }
+    set({ todoItems: items, allTodoItemsLoaded: true });
   },
 
   createTodoItem: async ({ starSystemId, title, parentId = null }) => {

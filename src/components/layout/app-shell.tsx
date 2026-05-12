@@ -31,6 +31,8 @@ export function AppShell({ userEmail, userId, children }: AppShellProps) {
   const starSystemsLoaded = useAppStore((s) => s.starSystemsLoaded);
   const loadUserAchievements = useAppStore((s) => s.loadUserAchievements);
   const achievementsLoaded = useAppStore((s) => s.achievementsLoaded);
+  const loadAllTodoItems = useAppStore((s) => s.loadAllTodoItems);
+  const allTodoItemsLoaded = useAppStore((s) => s.allTodoItemsLoaded);
 
   useEffect(() => {
     if (!starSystemsLoaded) {
@@ -43,6 +45,12 @@ export function AppShell({ userEmail, userId, children }: AppShellProps) {
       loadUserAchievements(userId);
     }
   }, [userId, achievementsLoaded, loadUserAchievements]);
+
+  useEffect(() => {
+    if (!allTodoItemsLoaded) {
+      loadAllTodoItems();
+    }
+  }, [allTodoItemsLoaded, loadAllTodoItems]);
 
   useAchievementTrigger(userId);
   useRealtimeSync(userId);
